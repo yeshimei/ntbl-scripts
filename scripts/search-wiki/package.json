@@ -1,0 +1,26 @@
+{
+  "name": "@ntbl/scripts-search-wiki",
+  "version": "1.0.0",
+  "description": "一个把文本词汇变成 markdown 添上搜索百度百科的链接和简介的脚本。",
+  "main": "index.js",
+  "bin": {
+    "search-wiki": "bin/index.js"
+  },
+  "keywords": [
+    "scripts"
+  ],
+  "author": "yeshimei",
+  "bugs": {
+    "url": "https://github.com/yeshimei/ntbl-scripts/issues"
+  },
+  "repository": "https://github.com/yeshimei/ntbl-scripts/scripts/search-wiki",
+  "license": "MIT",
+  "dependencies": {
+    "@ntbl/log": "^1.0.1",
+    "chalk": "^2.4.2",
+    "cheerio": "^1.0.0-rc.3",
+    "commander": "^2.20.0",
+    "request": "^2.88.0",
+    "request-promise": "^4.2.4"
+  }
+}

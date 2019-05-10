@@ -1,0 +1,25 @@
+{
+  "name": "@ntbl/scripts-text-check",
+  "version": "1.0.0",
+  "description": "查询文本中的高频词。",
+  "main": "index.js",
+  "bin": {
+    "text-check": "bin/index.js"
+  },
+  "keywords": [
+    "scripts"
+  ],
+  "author": "yeshimei",
+  "bugs": {
+    "url": "https://github.com/yeshimei/ntbl-scripts/issues"
+  },
+  "repository": "https://github.com/yeshimei/ntbl-scripts/scripts/text-check",
+  "license": "MIT",
+  "dependencies": {
+    "@ntbl/log": "^1.0.1",
+    "chalk": "^2.4.2",
+    "commander": "^2.20.0",
+    "request": "^2.88.0",
+    "request-promise": "^4.2.4"
+  }
+}
