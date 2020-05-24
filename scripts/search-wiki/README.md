@@ -3,7 +3,7 @@
 
 一个把文本词汇变成 markdown 添上搜索百度百科的链接和简介的脚本。
 
-![](https://github.com/yeshimei/ntbl-scripts/blob/master/images/2wknu-92xtn.gif?raw=true)
+![](https://yeshimei.oss-cn-beijing.aliyuncs.com/20200524162436.gif)
 
 
 # installation

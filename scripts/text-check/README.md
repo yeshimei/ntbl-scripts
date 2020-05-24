@@ -4,7 +4,7 @@
 
 查询文本中的高频词。
 
-![](https://github.com/yeshimei/ntbl-scripts/blob/master/images/riws4-c34ct.gif?raw=true)
+![](https://yeshimei.oss-cn-beijing.aliyuncs.com/20200524162521.gif)
 
 # installation
 

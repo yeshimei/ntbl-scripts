@@ -13,7 +13,7 @@
   "bugs": {
     "url": "https://github.com/yeshimei/ntbl-scripts/issues"
   },
-  "repository": "https://github.com/yeshimei/ntbl-scripts/scripts/text-check",
+  "repository": "https://github.com/yeshimei/ntbl-scripts/tree/master/scripts/text-check",
   "license": "MIT",
   "dependencies": {
     "@ntbl/log": "^1.0.1",
