@@ -14,8 +14,6 @@ $ npm i @ntbl/scripts-poems -g
 
 ## Usage
 
-**poems [OPTIONS] INPUT [OUTPUT]**
-
 列出清单
 
 ```js
@@ -40,5 +38,5 @@ $ npm i @ntbl/scripts-poems -g
 生成诗集
 
 ```
-poems list.txt 诗集.epub
+poems list.txt | poems-make 诗集.epub
 ```

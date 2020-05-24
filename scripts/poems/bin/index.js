@@ -37,6 +37,9 @@ log.register('output', {
   checked: data => `共${data.args[0]}首，成功查询到 ${data.args[1] - 1} 首 \n 已经为您生成自定义诗集，感谢您的使用。`
 })
 
+
+
+
 program
   .version(version)
   .usage('[OPTIONS] INPUT [PUTOUT]')
@@ -154,8 +157,10 @@ async function init () {
   // // uuid 未定义错误，请修改 /bin/ensure.js 文件中 uuid.v4() 为任意数值
 
   // const title = f2 || path.parse(f1).name
+  // const query = `poems-make ${title}.epub`
+  // console.log(query);
   
-  // const { stdout, stderr } = await exec(`ebrew a.epub`);
+  // const { stdout, stderr } = await exec(query);
   // console.log('stdout:', stdout);
   // console.error('stderr:', stderr);
   log.output.checked(words.length, index)
