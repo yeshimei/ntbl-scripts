@@ -13,4 +13,5 @@ test/
 *.ntvs*
 *.njsproj
 *.sln
+package-lock.json
 
