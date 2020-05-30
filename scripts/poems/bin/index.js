@@ -11,7 +11,9 @@ const { version } = require('../package')
 const log = require('@ntbl/log')()
 const util = require('util')
 const rmdir = util.promisify(require('rmdir'))
-const exec = util.promisify(require('child_process').exec)
+const spawn = require('child_process').spawn
+
+log.config.disabled = false;
 
 const data = new Date
 const putoutDir = 'book'
@@ -34,7 +36,7 @@ const headers = {
 
 log.register('output', {
   checking: data => `[${data.args[0]}/${data.args[1]}] ${data.frame} 正在努力查询中...`,
-  checked: data => `共${data.args[0]}首，成功查询到 ${data.args[1] - 1} 首 \n 已经为您生成自定义诗集，感谢您的使用。`
+  checked: data => `共${data.args[0]}首，成功查询到 ${data.args[1] - 1} 首 \n已经为您生成自定义诗集，感谢您的使用。`
 })
 
 
@@ -84,41 +86,47 @@ async function find (word) {
 
     // 翻译。注释。鉴赏
     for(let i = 0; i < spreadATag.length; i++) {
+      let eleContent = ''
       const ele2 = cheerio(spreadATag[i])
-      // 目前，仅从更多阅读里爬取数据
       const href = ele2.find('a[style*="none"]').attr('href')
       const title = ele2.find('h2 span').text()
 
-      if (!href) {
-        const eleContent = ele2.text().replace(title, '')
-        text += `<h2>${title}</h2> \n\n ${eleContent} \n\n`
-        continue
-      };
+      if (href) {
+        // 从更多阅读里爬取数据
 
-      
-      const id = href.match(/[A-Z0-9]{10,}/g)[0]
-      // console.log(title, id);
-      let url = title === '译文及注释' 
-        ? 'https://so.gushiwen.org/nocdn/ajaxfanyi.aspx?id=' 
-        : 'https://so.gushiwen.org/nocdn/ajaxshangxi.aspx?id='
-      
-      let html3 = await request(url +  id, {headers})
-      // console.log(html3);
-      
-      if (html3 === '未登录') continue;
-      
-      const ele = cheerio.load(html3)('.contyishang')
-      let eleContent = ''
-
-      if (title === '译文及注释') {
-        ele.find('p').each(function () {
-          eleContent += cheerio(this).html().replace(/<strong>(.*)<\/strong>/g, '**$1** \n\n').replace(/<br>/g, '\n\n').replace(/<a title.*a>/g, '') + '\n\n'
-        })
-
+        const id = href.match(/[A-Z0-9]{10,}/g)[0]
+        // console.log(title, id);
+        let url = title === '译文及注释' 
+          ? 'https://so.gushiwen.org/nocdn/ajaxfanyi.aspx?id=' 
+          : 'https://so.gushiwen.org/nocdn/ajaxshangxi.aspx?id='
+        
+        let html3 = await request(url +  id, {headers})
+        // console.log(html3);
+        
+        if (html3 === '未登录') continue;
+        const ele = cheerio.load(html3)('.contyishang')
+  
+        if (title === '译文及注释') {
+          ele.find('p').each(function () {
+            eleContent += cheerio(this).html()
+            // 将译文与注释变为二级标题
+            .replace(/<strong>(.*)<\/strong>/g, '## $1 \n\n')
+            // 替换 <br> 标签
+            .replace(/<br>/g, '\n\n')
+            // 去掉结尾的三角符号
+            .replace(/<a title.*a>/g, '')
+             + '\n\n'
+          })
+  
+        } else {
+          eleContent = ele.text().replace(title, '')
+        }
+        
       } else {
-        eleContent = ele.text().replace(title, '')
+        // 直接从页面爬取数据
+        eleContent = ele2.text().replace(title, '')
       }
-      
+
       text += `<h2>${title}</h2> \n\n ${eleContent} \n\n`
     }
 
@@ -126,8 +134,12 @@ async function find (word) {
     // console.log(e);
   }
 
-  // 清除行前的空格和无用乱码字符
-  text = text.replace(/(　　||&#x3000;&#x3000;)/gm, '\n\n')
+  
+  text = text
+    // 去掉标题
+    .replace('<h2>译文及注释</h2>', '') 
+    // 清除行前的空格和无用乱码字符
+    .replace(/(　　||&#x3000;&#x3000;)/gm, '\n\n')
 
   const filename = `${putoutDir}/${uuid()}.md`
   // 生成单独的 md 文件
@@ -151,19 +163,25 @@ async function init () {
   // 生成配置文件
   config.contents = words.map(word => word.filename)
   fs.writeFileSync('book.json', JSON.stringify(config))
-  // // 生成 epub 
-  // // 需要提前安装 ebrew
-  // // https://github.com/jonnypetraglia/ebrew
-  // // uuid 未定义错误，请修改 /bin/ensure.js 文件中 uuid.v4() 为任意数值
 
-  // const title = f2 || path.parse(f1).name
-  // const query = `poems-make ${title}.epub`
-  // console.log(query);
+  // 生成 epub 
+  // 需要提前安装 ebrew
+  // https://github.com/jonnypetraglia/ebrew
+  // uuid 未定义错误，请修改 /bin/ensure.js 文件中 uuid.v4() 为任意数值
+  // 现在，我已经内置了它
+  const title = f2 || path.parse(f1).name
+  const query = ['node', path.resolve(__dirname, '../ebrew/lib/cli.js'), `${title}.epub`] 
   
-  // const { stdout, stderr } = await exec(query);
-  // console.log('stdout:', stdout);
-  // console.error('stderr:', stderr);
-  log.output.checked(words.length, index)
+  const bat = spawn('cmd.exe', query, { shell: true });
+  bat.stdout.on('data', async () => {
+    log.clear()
+    log.output.checked(words.length, index)
+
+    await rmdir('book')
+    await rmdir('book.json')
+
+    process.exit(0)
+  })
 }
 
 function uuid () {

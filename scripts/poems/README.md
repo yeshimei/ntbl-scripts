@@ -38,5 +38,5 @@ $ npm i @ntbl/scripts-poems -g
 生成诗集
 
 ```
-poems list.txt | poems-make 诗集.epub
+poems list.txt
 ```
