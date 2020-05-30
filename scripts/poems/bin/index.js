@@ -110,7 +110,7 @@ async function find (word) {
           ele.find('p').each(function () {
             eleContent += cheerio(this).html()
             // 将译文与注释变为二级标题
-            .replace(/<strong>(.*)<\/strong>/g, '## $1 \n\n')
+            .replace(/<strong>(.*)<\/strong>/g, '<h2>$1</h2> \n\n')
             // 替换 <br> 标签
             .replace(/<br>/g, '\n\n')
             // 去掉结尾的三角符号
