@@ -11,7 +11,7 @@ const { version } = require('../package')
 const log = require('@ntbl/log')()
 const util = require('util')
 const rmdir = util.promisify(require('rmdir'))
-const spawn = require('child_process').spawn
+const spawn = require('cross-spawn');
 
 log.config.disabled = false;
 
@@ -170,18 +170,14 @@ async function init () {
   // uuid 未定义错误，请修改 /bin/ensure.js 文件中 uuid.v4() 为任意数值
   // 现在，我已经内置了它
   const title = f2 || path.parse(f1).name
-  const query = ['node', path.resolve(__dirname, '../ebrew/lib/cli.js'), `${title}.epub`] 
+  const query = [path.resolve(__dirname, '../ebrew/lib/cli.js'), `${title}.epub`]
   
-  const bat = spawn('cmd.exe', query, { shell: true });
-  bat.stdout.on('data', async () => {
-    log.clear()
-    log.output.checked(words.length, index)
+  spawn.sync('node', query, { stdio: 'inherit' })
+  
+  await rmdir('book')
+  await rmdir('book.json')
 
-    await rmdir('book')
-    await rmdir('book.json')
-
-    process.exit(0)
-  })
+  log.output.checked(words.length, index)
 }
 
 function uuid () {

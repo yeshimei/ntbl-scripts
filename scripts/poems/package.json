@@ -1,11 +1,10 @@
 {
   "name": "@ntbl/scripts-poems",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "description": "根据列出的古诗词名和作者，自动生成一本诗集",
   "main": "index.js",
   "bin": {
-    "poems": "bin/index.js",
-    "poems-make": "ebrew/lib/cli.js"
+    "poems": "bin/index.js"
   },
   "keywords": [
     "scripts"
@@ -23,6 +22,8 @@
     "chalk": "^2.4.2",
     "cheerio": "^1.0.0-rc.3",
     "commander": "^2.20.0",
+    "cross-spawn": "^7.0.3",
+    "execa": "^4.0.2",
     "get-stdin": "^5.0.1",
     "marked": "^0.3.3",
     "mime": "^1.3.4",
