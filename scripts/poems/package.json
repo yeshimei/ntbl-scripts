@@ -1,6 +1,6 @@
 {
   "name": "@ntbl/scripts-poems",
-  "version": "2.0.2",
+  "version": "2.1.0",
   "description": "根据列出的古诗词名和作者，自动生成一本诗集",
   "main": "index.js",
   "bin": {

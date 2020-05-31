@@ -13,11 +13,15 @@ const util = require('util')
 const rmdir = util.promisify(require('rmdir'))
 const spawn = require('cross-spawn');
 
-log.config.disabled = false;
+// log.config.disabled = true;
 
 const data = new Date
 const putoutDir = 'book'
 let index = 1
+let infoMessage = {
+  deviation: new Set(),
+  empty: new Set()
+}
 const config = {
   "title": "诗集",
   "subtitle": "由 poems 脚本生成",
@@ -36,11 +40,8 @@ const headers = {
 
 log.register('output', {
   checking: data => `[${data.args[0]}/${data.args[1]}] ${data.frame} 正在努力查询中...`,
-  checked: data => `共${data.args[0]}首，成功查询到 ${data.args[1] - 1} 首 \n已经为您生成自定义诗集，感谢您的使用。`
+  checked: data => `\n\n ${chalk.greenBright.italic(data.args[0] + '/' + (data.args[1] - 1) + ' √ 诗集已生成！！！' )} `
 })
-
-
-
 
 program
   .version(version)
@@ -65,14 +66,15 @@ async function find (word) {
   let text = ''
 
   // 作者可选
-  rawAuthor = rawAuthor ? '+' + rawAuthor : ''
-  url = 'https://so.gushiwen.org/search.aspx?value=' + encodeURI(rawTitle) + encodeURI(rawAuthor)
+  rawAuthor2 = rawAuthor ? '+' + rawAuthor : ''
+  url = 'https://so.gushiwen.org/search.aspx?value=' + encodeURI(rawTitle) + encodeURI(rawAuthor2)
 
   try {
     const html = await request(url)
-    const url2 = 'https://so.gushiwen.org/' + cheerio.load(html)('.sons').first().find('.yizhu').next().find('a').attr('href')
+    const url3 = cheerio.load(html)('.sons').first().find('.yizhu').next().find('a').attr('href')
+    const url2 = 'https://so.gushiwen.org/' + url3
     const html2 = await request(url2)
-    
+
     const $ = cheerio.load(html2)
 
     const spreadATag = $('.contyishang')
@@ -95,13 +97,11 @@ async function find (word) {
         // 从更多阅读里爬取数据
 
         const id = href.match(/[A-Z0-9]{10,}/g)[0]
-        // console.log(title, id);
         let url = title === '译文及注释' 
           ? 'https://so.gushiwen.org/nocdn/ajaxfanyi.aspx?id=' 
           : 'https://so.gushiwen.org/nocdn/ajaxshangxi.aspx?id='
         
         let html3 = await request(url +  id, {headers})
-        // console.log(html3);
         
         if (html3 === '未登录') continue;
         const ele = cheerio.load(html3)('.contyishang')
@@ -127,11 +127,18 @@ async function find (word) {
         eleContent = ele2.text().replace(title, '')
       }
 
+      // 查询内容与列表内容偏差警告信息记录
+      
+      if (rawTitle !== poemTitle || (rawAuthor ? (rawAuthor !== poemAuthor) : false)) {
+        infoMessage.deviation.add(`《${poemTitle}》${poemAuthor} ☞  《${rawTitle}》${rawAuthor ? rawAuthor : ''}`)
+      }
+
       text += `<h2>${title}</h2> \n\n ${eleContent} \n\n`
     }
 
   } catch (e) {
-    // console.log(e);
+    // 查询内容与列表内容空白警告信息记录
+    infoMessage.empty.add(`《${rawTitle}》${rawAuthor ? rawAuthor : ''}`)
   }
 
   
@@ -173,11 +180,23 @@ async function init () {
   const query = [path.resolve(__dirname, '../ebrew/lib/cli.js'), `${title}.epub`]
   
   spawn.sync('node', query, { stdio: 'inherit' })
-  
   await rmdir('book')
   await rmdir('book.json')
 
   log.output.checked(words.length, index)
+
+  let message = ''
+
+  if (infoMessage.deviation.size) {
+    message += `\n ${chalk.yellowBright.underline.bold('查询诗词题目或作者与指定的列表信息不一致（左边为查询后，右边为列表）：')} \n\n${chalk.yellowBright(' · ' + [...infoMessage.deviation].join('\n · '))} \n`
+  }
+
+  if (infoMessage.empty.size) {
+    message += `\n ${chalk.bgRed.white.bold('未查询任何内容的列表信息：')} \n\n${chalk.redBright(' · ' + [...infoMessage.empty].join('\n · '))} \n`
+  }
+
+  console.log(message);
+  
 }
 
 function uuid () {
