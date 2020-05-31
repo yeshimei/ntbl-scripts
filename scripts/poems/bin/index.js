@@ -128,7 +128,6 @@ async function find (word) {
       }
 
       // 查询内容与列表内容偏差警告信息记录
-      
       if (rawTitle !== poemTitle || (rawAuthor ? (rawAuthor !== poemAuthor) : false)) {
         infoMessage.deviation.add(`《${poemTitle}》${poemAuthor} ☞  《${rawTitle}》${rawAuthor ? rawAuthor : ''}`)
       }
@@ -136,25 +135,24 @@ async function find (word) {
       text += `<h2>${title}</h2> \n\n ${eleContent} \n\n`
     }
 
-  } catch (e) {
-    // 查询内容与列表内容空白警告信息记录
-    infoMessage.empty.add(`《${rawTitle}》${rawAuthor ? rawAuthor : ''}`)
-  }
-
-  
-  text = text
+    text = text
     // 去掉标题
     .replace('<h2>译文及注释</h2>', '') 
     // 清除行前的空格和无用乱码字符
     .replace(/(　　||&#x3000;&#x3000;)/gm, '\n\n')
 
-  const filename = `${putoutDir}/${uuid()}.md`
-  // 生成单独的 md 文件
-  fs.writeFileSync(filename, text)
-  // 记录文件名（按顺序）
-  word.filename = filename
-  // 进度
-  log.output.checking(words.length, index++)
+    const filename = `${putoutDir}/${uuid()}.md`
+    // 生成单独的 md 文件
+    fs.writeFileSync(filename, text)
+    // 记录文件名（按顺序）
+    word.filename = filename
+    // 进度
+    log.output.checking(words.length, index++)
+
+  } catch (e) {
+    // 查询内容与列表内容空白警告信息记录
+    infoMessage.empty.add(`《${rawTitle}》${rawAuthor ? rawAuthor : ''}`)
+  }
 }
 
 
